@@ -1,0 +1,51 @@
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: repair-shop-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - repair-shop-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: repair-shop-server
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/repair-shop
+      - NODE_ENV=development
+    volumes:
+      - ./server:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - repair-shop-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: repair-shop-client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    volumes:
+      - ./client:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - repair-shop-network
+
+networks:
+  repair-shop-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
