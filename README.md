@@ -9,3 +9,7 @@ Aplicación web progresiva (PWA) para un local de reparación de computadoras, c
 - **Backend**: API RESTful con Node.js, Express y MongoDB.  
 - **Frontend**: Interfaz responsiva con React y Material-UI.  
  
+## Ejecucion
+para su ejecucion en local, se debe ingresar a sus respectivas carpetas y ejecutar los siguentes comandos:
+- Para frontend (client): npm start
+- Para backend (server): npx nodemon app.js

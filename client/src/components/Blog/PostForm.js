@@ -9,6 +9,7 @@ import {
   Alert 
 } from '@mui/material';
 import { createPost } from '../../utils/api';
+import { savePostOffline } from '../../utils/indexedDB';
 
 const PostForm = ({ onPostCreated }) => {
   const [content, setContent] = useState('');
@@ -18,26 +19,35 @@ const PostForm = ({ onPostCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    try {
-      const newPost = await createPost({ content });
-      setContent('');
-      setAlert({
-        open: true,
-        message: 'Publicación creada exitosamente',
-        severity: 'success'
-      });
-      if (onPostCreated) {
-        onPostCreated(newPost);
-      }
-    } catch (error) {
-      setAlert({
-        open: true,
-        message: 'Error al crear la publicación',
-        severity: 'error'
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    try {  
+      if (!navigator.onLine) {  
+        // Guardar post offline  
+        await savePostOffline({ content });  
+        setAlert({  
+          open: true,  
+          message: 'Post guardado offline. Se publicará cuando haya conexión.',  
+          severity: 'info'  
+        });  
+      } else {  
+        // Publicar normalmente  
+        const newPost = await createPost({ content });  
+        onPostCreated(newPost);  
+        setAlert({  
+          open: true,  
+          message: 'Post publicado exitosamente',  
+          severity: 'success'  
+        });  
+      }  
+      setContent('');  
+    } catch (error) {  
+      setAlert({  
+        open: true,  
+        message: 'Error al crear el post',  
+        severity: 'error'  
+      });  
+    } finally {  
+      setIsLoading(false);  
+    }  
   };
 
   return (
